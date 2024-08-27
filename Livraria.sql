@@ -1,0 +1,79 @@
+-- Criação do banco de dados Livraria
+CREATE DATABASE Livraria;
+
+-- Definição do esquema biblioteca com codificação padrão UTF-8
+CREATE SCHEMA biblioteca DEFAULT CHARACTER SET utf8;
+
+-- Selecionando o esquema criado
+USE biblioteca;
+
+-- Criação da tabela Fornecedores (precisa ser criada antes de Livros)
+CREATE TABLE Fornecedores (
+    FornecedoresID INT PRIMARY KEY AUTO_INCREMENT,
+    NomeFornecedor VARCHAR(50),
+    Telefone VARCHAR(11),
+    Endereco VARCHAR(50),
+    NomeContato VARCHAR(30)
+);
+
+-- Criação da tabela Clientes
+CREATE TABLE Clientes (
+    ClienteID INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(50) NOT NULL,
+    Endereco VARCHAR(100) NOT NULL,
+    Telefone VARCHAR(11),
+    Email VARCHAR(30) UNIQUE
+);
+
+-- Criação da tabela Vendedores
+CREATE TABLE Vendedores (
+    VendedorID INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(50) NOT NULL,
+    CPF VARCHAR(11) UNIQUE NOT NULL,
+    Telefone VARCHAR(11),
+    Email VARCHAR(30) UNIQUE
+);
+
+-- Criação da tabela Livros
+CREATE TABLE Livros (
+    LivroID INT PRIMARY KEY AUTO_INCREMENT,
+    Titulo VARCHAR(50) NOT NULL,
+    Autor VARCHAR(50),
+    Editora VARCHAR(30),
+    AnoPublicacao VARCHAR(4),
+    FornecedoresID INT,
+    Preco DECIMAL(10, 2) NOT NULL,
+    QuantidadeEstoque INT NOT NULL,
+    CONSTRAINT fk_FornecedoresID FOREIGN KEY (FornecedoresID) REFERENCES Fornecedores(FornecedoresID)
+);
+
+-- Criação da tabela Estoque
+CREATE TABLE Estoque (
+    EstoqueID INT PRIMARY KEY AUTO_INCREMENT,
+    ClienteID INT,
+    DataPedido DATE NOT NULL,
+    VendedorID INT,
+    Quantidade INT,
+    CONSTRAINT fk_ClienteID FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID),
+    CONSTRAINT fk_VendedorID FOREIGN KEY (VendedorID) REFERENCES Vendedores(VendedorID)
+);
+
+-- Criação da tabela ItensPedidos
+CREATE TABLE ItensPedidos (
+    ItemPedidoID INT PRIMARY KEY AUTO_INCREMENT,
+    EstoqueID INT,
+    LivroID INT,
+    Quantidade INT NOT NULL,
+    PrecoUnitario DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_EstoqueID FOREIGN KEY (EstoqueID) REFERENCES Estoque(EstoqueID),
+    CONSTRAINT fk_LivroID FOREIGN KEY (LivroID) REFERENCES Livros(LivroID)
+);
+
+-- Criação da tabela NotasFiscais
+CREATE TABLE NotasFiscais (
+    NotaFiscalID INT PRIMARY KEY AUTO_INCREMENT,
+    PedidoID INT,
+    DataEmissao DATE NOT NULL,
+    ValorTotal DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_PedidoID FOREIGN KEY (PedidoID) REFERENCES Estoque(EstoqueID)
+);
